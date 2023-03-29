@@ -41,7 +41,7 @@ resource "azurerm_spring_cloud_build_deployment" "blue" {
   instance_count      = 2
   quota {
     cpu    = "2"
-    memory = "4Gi"
+    memory = "2Gi"
   }
 
   lifecycle {
@@ -60,7 +60,7 @@ resource "azurerm_spring_cloud_build_deployment" "green" {
   instance_count      = 2
   quota {
     cpu    = "2"
-    memory = "4Gi"
+    memory = "2Gi"
   }
 
   lifecycle {
