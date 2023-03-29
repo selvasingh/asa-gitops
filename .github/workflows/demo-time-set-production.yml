@@ -1,0 +1,51 @@
+name: Demo Time Set production
+
+env:
+  SERVICE_NAME: demo-time-asa
+  APP_NAME: demo-time
+  RESOURCE_GROUP: ASA-E-GitOps
+  AZURE_SUBSCRIPTION: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+on:
+  push: 
+    paths:
+      - apps/demo-time/deployments/production
+    
+jobs:
+  Azure_Spring_Apps_Demo:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+
+    steps:
+      - name: Checkout Github Action
+        uses: actions/checkout@master
+
+      - name: Login via Azure CLI
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Determine production deployment
+        run: |
+          cat apps/demo-time/deployments/production >> $GITHUB_ENV     
+
+      - name: Get current production
+        run: |
+          az extension add -n spring -y
+          echo "CURRENT_PRODUCTION=$(az spring app show -n ${{ env.APP_NAME }} -s ${{ env.SERVICE_NAME }} -g ${{ env.RESOURCE_GROUP }} \
+           --subscription ${{ env.AZURE_SUBSCRIPTION }}  -o tsv --query properties.activeDeployment.name)"  >> $GITHUB_ENV  
+
+      - name: Set production to ${{ env.PRODUCTION_DEPLOYMENT }}
+        if: ${{ env.CURRENT_PRODUCTION != env.PRODUCTION_DEPLOYMENT }}
+        uses: Azure/spring-apps-deploy@v1
+        with:
+          azure-subscription: ${{ env.AZURE_SUBSCRIPTION }}
+          action: set-production
+          service-name: ${{ env.SERVICE_NAME }}
+          app-name: ${{ env.APP_NAME }}
+          deployment-name: ${{ env.PRODUCTION_DEPLOYMENT }}

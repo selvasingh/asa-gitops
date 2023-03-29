@@ -1,0 +1,70 @@
+name: Deploy Demo Time Blue
+
+env:
+  DEPLOYMENT_NAME: blue
+  SERVICE_NAME: demo-time-asa
+  APP_NAME: demo-time
+  RESOURCE_GROUP: ASA-E-GitOps
+  AZURE_SUBSCRIPTION: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+on:
+  push: 
+    paths:
+      - apps/demo-time/deployments/blue
+
+jobs:
+  Azure_Spring_Apps_Demo:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: read
+      id-token: write
+
+    steps:
+      - name: Checkout Github Action
+        uses: actions/checkout@master
+
+      - name: Login via Azure CLI
+        uses: azure/login@v1
+        with:
+          client-id: ${{ secrets.AZURE_CLIENT_ID }}
+          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Determine app version to deploy 
+        run: |
+          cat apps/demo-time/deployments/${{ env.DEPLOYMENT_NAME }} >> $GITHUB_ENV          
+
+      - name: Get current version
+        run: |
+          az extension add -n spring -y
+          echo "CURRENT_VERSION=$(az spring app deployment show -n ${{ env.DEPLOYMENT_NAME }} --app ${{ env.APP_NAME }} \
+           -s ${{ env.SERVICE_NAME }} -g ${{ env.RESOURCE_GROUP }} --subscription ${{ env.AZURE_SUBSCRIPTION }}  -o tsv --query properties.source.version)" >> $GITHUB_ENV 
+
+      - name: ECHO CURRENT_VERSION
+        run: echo ${{ env.CURRENT_VERSION }}
+
+      - uses: actions/setup-java@v3
+        with:
+          java-version: '11'
+          distribution: 'adopt'
+
+      - name: Download and copy packages
+        run: |
+          mvn dependency:get -Dartifact=com.example:demo-time:${{ env.APP_VERSION }} -DremoteRepositories=github::::https://maven.pkg.github.com/selvasingh/demo-time
+          cp ~/.m2/repository/com/example/demo-time/${{ env.APP_VERSION }}/demo-time-${{ env.APP_VERSION }}.jar ./demo-time-${{ env.APP_VERSION }}.jar          
+        env:
+          GITHUB_TOKEN: ${{ secrets.PAT }}
+
+
+      - name: Deploy to blue
+        if: ${{ env.CURRENT_VERSION != env.APP_VERSION }}
+        uses: Azure/spring-apps-deploy@v1
+        with:
+          azure-subscription: ${{ env.AZURE_SUBSCRIPTION }}
+          action: deploy
+          service-name: ${{ env.SERVICE_NAME }}
+          app-name: ${{ env.APP_NAME }}
+          deployment-name: ${{ env.DEPLOYMENT_NAME }}
+          package: ${{ github.workspace }}/demo-time-${{ env.APP_VERSION }}.jar
+          version: ${{ env.APP_VERSION }}
