@@ -4,9 +4,6 @@ on:
   push:
     branches:
     - main
-  pull_request:
-    branches:
-    - main
 
 #Special permissions required for OIDC authentication
 permissions:
@@ -22,7 +19,7 @@ env:
 
 jobs:
   terraform-plan:
-    name: 'Terraform Plan'
+    name: 'Terraform Apply'
     runs-on: ubuntu-latest
     env:
       #this is needed since we are running terraform with read-only permissions
