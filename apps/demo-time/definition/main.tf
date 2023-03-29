@@ -43,6 +43,14 @@ resource "azurerm_spring_cloud_build_deployment" "blue" {
     cpu    = "2"
     memory = "4Gi"
   }
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to tags, e.g. because a management agent
+      # updates these based on some ruleset managed elsewhere.
+      build_result_id,
+    ]
+  }
 }
 
 resource "azurerm_spring_cloud_build_deployment" "green" {
@@ -53,6 +61,14 @@ resource "azurerm_spring_cloud_build_deployment" "green" {
   quota {
     cpu    = "2"
     memory = "4Gi"
+  }
+
+  lifecycle {
+    ignore_changes = [
+      # Ignore changes to tags, e.g. because a management agent
+      # updates these based on some ruleset managed elsewhere.
+      build_result_id,
+    ]
   }
 }
 
