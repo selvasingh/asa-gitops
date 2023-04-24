@@ -38,7 +38,7 @@ resource "azurerm_spring_cloud_build_deployment" "blue" {
   name                = "blue"
   spring_cloud_app_id = azurerm_spring_cloud_app.demo-time-app.id
   build_result_id     = "<default>"
-  instance_count      = 2
+  instance_count      = 1
   quota {
     cpu    = "2"
     memory = "2Gi"
