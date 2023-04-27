@@ -50,7 +50,7 @@ data "azapi_resource" "buildservice" {
 resource "azapi_resource" "agentPool" {
   type      = "Microsoft.AppPlatform/Spring/buildServices/agentPools@2023-03-01-preview"
   name      = "default"
-  parent_id = azapi_resource.buildservice.id
+  parent_id = data.azapi_resource.buildservice.id
   body = jsonencode({
     properties = {
       poolSize = {
@@ -63,7 +63,7 @@ resource "azapi_resource" "agentPool" {
 resource "azapi_resource" "builder" {
   type      = "Microsoft.AppPlatform/Spring/buildServices/builders@2023-03-01-preview"
   name      = "default"
-  parent_id = azapi_resource.buildservice.id
+  parent_id = data.azapi_resource.buildservice.id
   body = jsonencode({
     properties = {
       buildpackGroups = [
