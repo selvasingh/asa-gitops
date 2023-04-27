@@ -39,16 +39,6 @@ resource "azurerm_spring_cloud_service" "spring" {
   sku_name            = "E0"
 }
 
-resource "azapi_resource" "buildservice" {
-  type      = "Microsoft.AppPlatform/Spring/buildServices@2023-03-01-preview"
-  name      = "default"
-  parent_id = azurerm_spring_cloud_service.spring.id
-  body = jsonencode({
-    properties = {
-    }
-  })
-}
-
 resource "azapi_resource" "agentPool" {
   type      = "Microsoft.AppPlatform/Spring/buildServices/agentPools@2023-03-01-preview"
   name      = "default"
