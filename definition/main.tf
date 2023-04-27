@@ -62,7 +62,7 @@ resource "azapi_resource" "agentPool" {
 
 resource "azapi_resource" "builder" {
   type      = "Microsoft.AppPlatform/Spring/buildServices/builders@2023-03-01-preview"
-  name      = "default"
+  name      = "java"
   parent_id = data.azapi_resource.buildservice.id
   body = jsonencode({
     properties = {
