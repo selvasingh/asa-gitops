@@ -31,7 +31,7 @@ resource "azurerm_spring_cloud_service" "spring" {
   resource_group_name = var.resource_group_name
   location            = var.location
   sku_name            = "E0"
-  
+
   build_agent_pool_size = "S1"
 }
 
