@@ -4,6 +4,9 @@ terraform {
       source  = "hashicorp/azurerm"
       version = ">= 3.7.0"
     }
+    azapi = {
+      source  = "Azure/azapi"
+    }
   }
 
   # Update this block with the location of your terraform state file
