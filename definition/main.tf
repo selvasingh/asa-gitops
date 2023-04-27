@@ -4,9 +4,6 @@ terraform {
       source  = "hashicorp/azurerm"
       version = ">= 3.7.0"
     }
-    azapi = {
-      source = "Azure/azapi"
-    }
   }
 
   # Update this block with the location of your terraform state file
@@ -24,9 +21,6 @@ provider "azurerm" {
   use_oidc = true
 }
 
-provider "azapi" {
-  use_oidc = true
-}
 
 data "azurerm_resource_group" "resource_group" {
   name = var.resource_group_name
@@ -37,51 +31,8 @@ resource "azurerm_spring_cloud_service" "spring" {
   resource_group_name = var.resource_group_name
   location            = var.location
   sku_name            = "E0"
-}
-
-data "azapi_resource" "buildservice" {
-  type      = "Microsoft.AppPlatform/Spring/buildServices@2023-03-01-preview"
-  name      = "default"
-  parent_id = azurerm_spring_cloud_service.spring.id
-
-  response_export_values = ["id"]
-}
-
-resource "azapi_resource" "agentPool" {
-  type      = "Microsoft.AppPlatform/Spring/buildServices/agentPools@2023-03-01-preview"
-  name      = "default"
-  parent_id = data.azapi_resource.buildservice.id
-  body = jsonencode({
-    properties = {
-      poolSize = {
-        name = "S1"
-      }
-    }
-  })
-}
-
-resource "azapi_resource" "builder" {
-  type      = "Microsoft.AppPlatform/Spring/buildServices/builders@2023-03-01-preview"
-  name      = "java"
-  parent_id = data.azapi_resource.buildservice.id
-  body = jsonencode({
-    properties = {
-      buildpackGroups = [
-        {
-          buildpacks = [
-            {
-              id = "tanzu-buildpacks/java-azure"
-            }
-          ]
-          name = "default"
-        }
-      ]
-      stack = {
-        id      = "io.buildpacks.stacks.bionic"
-        version = "base"
-      }
-    }
-  })
+  
+  build_agent_pool_size = "S1"
 }
 
 module "app-demo-time" {
