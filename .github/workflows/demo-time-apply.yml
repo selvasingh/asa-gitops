@@ -5,6 +5,7 @@ on:
     branches:
     - main
     paths:
+    - 'definition/**'
     - 'apps/demo-time/definition/**'
 
 #Special permissions required for OIDC authentication
@@ -42,25 +43,25 @@ jobs:
 
     # Initialize a new or existing Terraform working directory by creating initial files, loading any remote state, downloading modules, etc.
     - name: Terraform Init
-      working-directory: ./apps/demo-time/definition
+      working-directory: ./definition
       run: terraform init
 
     # Checks that all Terraform configuration files adhere to a canonical format
     # Will fail the build if not
     - name: Terraform Format
-      working-directory: ./apps/demo-time/definition
-      run: terraform fmt -check -diff
+      working-directory: ./definition
+      run: terraform fmt -check -recursive -diff
 
     # Generates an execution plan for Terraform
     # An exit code of 0 indicated no changes, 1 a terraform failure, 2 there are pending changes.
     - name: Terraform Plan
       id: tf-plan
-      working-directory: ./apps/demo-time/definition
+      working-directory: ./definition
       run: |
         terraform plan
 
     - name: Terraform Apply
       id: tf-apply
-      working-directory: ./apps/demo-time/definition
+      working-directory: ./definition
       run: |
         terraform apply -auto-approve
