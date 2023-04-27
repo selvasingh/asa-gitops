@@ -24,6 +24,10 @@ provider "azurerm" {
   use_oidc = true
 }
 
+provider "azapi" {
+  use_oidc = true
+}
+
 data "azurerm_resource_group" "resource_group" {
   name = var.resource_group_name
 }
