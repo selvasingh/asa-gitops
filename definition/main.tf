@@ -25,7 +25,6 @@ provider "azurerm" {
 }
 
 provider "azapi" {
-  features {}
   use_oidc = true
 }
 
